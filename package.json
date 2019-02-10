@@ -1,5 +1,5 @@
 {
-  "name": "nodejs-utilities",
+  "name": "@isaacadams/nodejs-utils",
   "version": "0.1.0",
   "description": "contains various useful methods for node applications",
   "main": "main.js",
