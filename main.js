@@ -7,6 +7,14 @@ let fs = require('fs'),
 
 let e = module.exports;
 
+/**
+ * @name getJsonFile
+ * @public
+ * @function
+ * @return {JSON} returns the file as a JSON
+ * @description pass in a file path and get it returned as a json
+ * @param {string} path
+ **/
 e.getJsonFile = function (path) {
     return JSON.parse(fs.readFileSync(path));
 };
