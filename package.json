@@ -1,6 +1,6 @@
 {
   "name": "node-simple-utils",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "contains various useful methods for node applications",
   "main": "main.js",
   "scripts": {
