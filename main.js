@@ -2,9 +2,7 @@
  * general javascript utilities 
  */
 
-let fs = require('fs'),
-    path = require('path');
-
+let { fs, path, stream } = require('./libraries');
 let e = module.exports;
 
 /**
@@ -28,60 +26,46 @@ e.ensureDirectoriesExist = function (filePath) {
 };
 
 e.createFile = (pathToFile) => {
-    e.ensureDirectoriesExist(pathToFile);
-    return fs.createWriteStream(pathToFile);
+
+    e.ensureDirectoriesExist(pathToFile);    
+
+    let ws = fs.createWriteStream(pathToFile);
+
+    //ws.on('finish', function (err) {
+    //    if (err) console.log(err);
+    //});
+
+    return ws;
 };
 
+//https://medium.freecodecamp.org/node-js-streams-everything-you-need-to-know-c9141306be93
+const { Transform } = stream; 
 
-
-e.bundler = function (b, outputPath) {
-    console.log('Building...');
-
-    //let str = progress({
-    //    time: 100
-    //}, async function (progress) {        
-    //    await process.stdout.write(Math.round(progress.percentage) + '%');
-    //});
-
-    async function bundleLogger(err, buff) {
-        if (err)
-            console.log(err);
-
-        await process.stdout.write(buff);
+e.reportProgress = new Transform({
+    transform(chunk, encoding, callback) {
+        process.stdout.write('.');
+        //process.stdout.write('\n' + chunk);
+        //callback(null, chunk);
+        callback();
     }
+});
 
-    //b.pipeline.on('transform', function (tr, file) {
-    //    console.log('transforming ' + path.basename(file));
-    //});
+e.writeToFile = (path) => {
+    e.ensureDirectoriesExist(path);
+    let ws = fs.createWriteStream(path);
 
-    //b.pipeline.on('file', function (file, id, parent) {
-    //    console.log('bundling ' + path.basename(file));
-    //});
+    let stream = new Transform({
+        transform(chunk, encoding, callback) {
+            process.stdout.write('.'); //give processing visual
+            ws.write(chunk, encoding); //write data to file
+            callback();
+        }
+    });
 
-    //b.pipeline.on('package', function (pkg) {
-    //    console.log('reading ' + pkg.name);
-    //});
-
-    //b.on('bundle', function (bundle) {
-    //    //console.log(bundle);
-    //    //return bundle.pipe(str);
-    //    bundle.on('data', log);
-    //    let writeStream = new fs.WriteStream(outputPath);
-
-    //    writeStream.on('error', function (err) {
-    //        console.log(err);
-    //    });
-
-    //    async function log(data) {
-    //        await console.log(data);
-    //        writeStream.write(data);
-    //    }
-    //});
-
-
-    return b
-        .bundle()
-        //.pipe(str)
-        //.pipe(process.stdout)
-        .pipe(e.createFile(outputPath));
+    stream.on('end', () => {
+        console.log('Done Writing');
+        ws.end(); //end the write stream
+    });
+    
+    return stream;
 };
